@@ -92,8 +92,43 @@ const removePlayer = async (playerId) => {
  * @param playerList - an array of player objects
  * @returns the playerContainerHTML variable.
  */
-const renderAllPlayers = (playerList) => {
+const renderAllPlayers = async (playerList) => {
   try {
+    playerContainer.innerHTML = "";
+    playerList.forEach((player) => {
+      if (!Array.isArray(playerList)) {
+        throw new Error("Parties is not an array.");
+      }
+      console.log(player.name);
+      console.log("error");
+      const playerElement = document.createElement("div");
+      playerElement.classList.add("");
+      partyElement.innerHTML = `
+      <h2>${player.name}</h2>
+      <p>${player.breed}</p>
+      <p>${player.status}</p>
+      <button class="details-button" data-id="${party.id}">See Details</button>
+      <button class="delete-button" data-id="${party.id}">Delete</button>
+    `;
+      partyContainer.appendChild(playerElement);
+
+      // see details
+      const detailsButton = partyElement.querySelector(".details-button");
+      detailsButton.addEventListener("click", (event) => {
+        // your code here
+        const partyId = event.target.dataset.id;
+        renderSinglePartyById(party.id);
+      });
+
+      // delete party
+      const deleteButton = partyElement.querySelector(".delete-button");
+      deleteButton.addEventListener("click", async () => {
+        // your code here
+        const partyID = partyElement.getAttribute("data-id");
+        deleteParty(party.id);
+        await renderParties(await getAllParties());
+      });
+    }); // <-- Add this closing bracket
   } catch (err) {
     console.error("Uh oh, trouble rendering players!", err);
   }
@@ -111,10 +146,7 @@ const renderNewPlayerForm = () => {
 };
 
 const init = async () => {
-  const players = await fetchAllPlayers();
-  renderAllPlayers(players);
-
-  renderNewPlayerForm();
+  await renderAllPlayers(await fetchSinglePlayer(340));
 };
-
+fetchAllPlayers();
 init();
