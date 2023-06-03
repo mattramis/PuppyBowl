@@ -34,6 +34,19 @@ const fetchSinglePlayer = async (playerId) => {
 
 const addNewPlayer = async (playerObj) => {
   try {
+    const response = await fetch(`${APIURL / players}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(playerObj),
+    });
+
+    if (response.ok) {
+      console.log("Player added successfully.");
+    } else {
+      console.error("Failed to add player. Status:", response.status);
+    }
   } catch (err) {
     console.error("Oops, something went wrong with adding that player!", err);
   }
@@ -41,6 +54,16 @@ const addNewPlayer = async (playerObj) => {
 
 const removePlayer = async (playerId) => {
   try {
+    const response = await fetch(`${APIURL}/players/${playerId}}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (response.ok) {
+      console.log("Data deleted successfully.");
+    }
   } catch (err) {
     console.error(
       `Whoops, trouble removing player #${playerId} from the roster!`,
