@@ -13,7 +13,8 @@ const APIURL = `https://fsa-puppy-bowl.herokuapp.com/api/${cohortName}`;
 const fetchAllPlayers = async () => {
   try {
     const response = await fetch(`${APIURL}/players`);
-    const players = await response.json();
+    const playersData = await response.json();
+    players = playersData.data.players;
     console.log(players);
     return players;
   } catch (err) {
@@ -41,11 +42,11 @@ const addNewPlayer = async (playerObj) => {
       },
       body: JSON.stringify(playerObj),
     });
-
-    if (response.ok) {
+    const result = await response.json();
+    if (result.ok) {
       console.log("Player added successfully.");
     } else {
-      console.error("Failed to add player. Status:", response.status);
+      console.error("Failed to add player. Status:", result.status);
     }
   } catch (err) {
     console.error("Oops, something went wrong with adding that player!", err);
@@ -92,61 +93,78 @@ const removePlayer = async (playerId) => {
  * @param playerList - an array of player objects
  * @returns the playerContainerHTML variable.
  */
-const renderAllPlayers = async (playerList) => {
+const renderAllPlayers = async () => {
   try {
     playerContainer.innerHTML = "";
+
+    const playerList = await fetchAllPlayers();
+
     playerList.forEach((player) => {
-      if (!Array.isArray(playerList)) {
-        throw new Error("Parties is not an array.");
-      }
-      console.log(player.name);
-      console.log("error");
+      console.log(`Player:`, player);
+
       const playerElement = document.createElement("div");
-      playerElement.classList.add("");
-      partyElement.innerHTML = `
-      <h2>${player.name}</h2>
-      <p>${player.breed}</p>
-      <p>${player.status}</p>
-      <button class="details-button" data-id="${party.id}">See Details</button>
-      <button class="delete-button" data-id="${party.id}">Delete</button>
-    `;
-      partyContainer.appendChild(playerElement);
+      playerElement.innerHTML = `
+        <h2>${player.name}</h2>
+        <p>${player.breed}</p>
+        <p>${player.status}</p>
+        <button class="details-button" data-id="${player.id}">See Details</button>
+        <button class="delete-button" data-id="${player.id}">Delete</button>
+      `;
+      playerContainer.appendChild(playerElement);
 
-      // see details
-      const detailsButton = partyElement.querySelector(".details-button");
-      detailsButton.addEventListener("click", (event) => {
-        // your code here
-        const partyId = event.target.dataset.id;
-        renderSinglePartyById(party.id);
+      // See details
+      const detailsButton = playerElement.querySelector(".details-button");
+      detailsButton.addEventListener("click", async (event) => {
+        const playerId = event.target.dataset.id;
+        await renderSinglePlayerById(playerId);
       });
 
-      // delete party
-      const deleteButton = partyElement.querySelector(".delete-button");
+      // Delete player
+      const deleteButton = playerElement.querySelector(".delete-button");
       deleteButton.addEventListener("click", async () => {
-        // your code here
-        const partyID = partyElement.getAttribute("data-id");
-        deleteParty(party.id);
-        await renderParties(await getAllParties());
+        await removePlayer(player.id);
+        await renderAllPlayers();
       });
-    }); // <-- Add this closing bracket
+    });
   } catch (err) {
     console.error("Uh oh, trouble rendering players!", err);
   }
 };
 
+const renderSinglePlayerById = async (playerId) => {
+  try {
+    const player = await fetchSinglePlayer(playerId);
+    console.log(player);
+    // Render single player details to the DOM
+    // ...
+  } catch (err) {
+    console.error(`Oh no, trouble rendering player #${playerId}!`, err);
+  }
+};
+
+// Rest of your code...
+
 /**
  * It renders a form to the DOM, and when the form is submitted, it adds a new player to the database,
  * fetches all players from the database, and renders them to the DOM.
  */
-const renderNewPlayerForm = () => {
+const renderNewPlayerForm = async (playerList) => {
   try {
+    await renderAllPlayers();
+    await addNewPlayer(playerList);
   } catch (err) {
     console.error("Uh oh, trouble rendering the new player form!", err);
   }
 };
+let number = [1, 2, 3, 45, 6];
 
 const init = async () => {
-  await renderAllPlayers(await fetchSinglePlayer(340));
+  const newPlayer = {
+    name: "Carlos",
+    breed: "Bull Dog",
+  };
+  await renderAllPlayers();
+  await renderNewPlayerForm(newPlayer);
 };
-fetchAllPlayers();
+
 init();
