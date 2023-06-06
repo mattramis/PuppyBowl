@@ -25,9 +25,9 @@ const fetchAllPlayers = async () => {
 const fetchSinglePlayer = async (playerId) => {
   try {
     const response = await fetch(`${APIURL}/players/${playerId}`);
-    const player = await response.json();
-    console.log(player);
-    return player;
+    let playerData = await response.json();
+    //await fetchSinglePlayer(7039)
+    return playerData;
   } catch (err) {
     console.error(`Oh no, trouble fetching player #${playerId}!`, err);
   }
@@ -35,7 +35,7 @@ const fetchSinglePlayer = async (playerId) => {
 
 const addNewPlayer = async (playerObj) => {
   try {
-    const response = await fetch(`${APIURL / players}`, {
+    const response = await fetch(`${APIURL}/players`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -55,7 +55,7 @@ const addNewPlayer = async (playerObj) => {
 
 const removePlayer = async (playerId) => {
   try {
-    const response = await fetch(`${APIURL}/players/${playerId}}`, {
+    const response = await fetch(`${APIURL}/players/${playerId}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
@@ -99,30 +99,29 @@ const renderAllPlayers = async () => {
 
     const playerList = await fetchAllPlayers();
 
-    playerList.forEach((player) => {
-      console.log(`Player:`, player);
+    playerList.forEach((players) => {
+      console.log(`Player:`, players);
 
       const playerElement = document.createElement("div");
       playerElement.innerHTML = `
-        <h2>${player.name}</h2>
-        <p>${player.breed}</p>
-        <p>${player.status}</p>
-        <button class="details-button" data-id="${player.id}">See Details</button>
-        <button class="delete-button" data-id="${player.id}">Delete</button>
+        <h2>${players.name}</h2>
+        <p>${players.breed}</p>
+        <p>${players.status}</p>
+        <button class="details-button" data-id="${players.id}">See Details</button>
+        <button class="delete-button" data-id="${players.id}">Delete</button>
       `;
       playerContainer.appendChild(playerElement);
 
       // See details
       const detailsButton = playerElement.querySelector(".details-button");
       detailsButton.addEventListener("click", async (event) => {
-        const playerId = event.target.dataset.id;
-        await renderSinglePlayerById(playerId);
+        await renderSinglePlayerById(players.id);
       });
 
       // Delete player
       const deleteButton = playerElement.querySelector(".delete-button");
       deleteButton.addEventListener("click", async () => {
-        await removePlayer(player.id);
+        await removePlayer(players.id);
         await renderAllPlayers();
       });
     });
@@ -133,10 +132,24 @@ const renderAllPlayers = async () => {
 
 const renderSinglePlayerById = async (playerId) => {
   try {
-    const player = await fetchSinglePlayer(playerId);
-    console.log(player);
     // Render single player details to the DOM
     // ...
+    const player = await fetchSinglePlayer(playerId);
+
+    // Create a new HTML element to display party details
+    const playerDetailsElement = document.createElement("div");
+    playerDetailsElement.innerHTML = `
+      <h2>${players.name}</h2>
+      <p>${players.breed}</p>
+      <button class="close-button">Close</button>
+    `;
+    playerContainer.appendChild(playerDetailsElement);
+
+    // Add event listener to the close button
+    const closeButton = playerDetailsElement.querySelector(".close-button");
+    closeButton.addEventListener("click", () => {
+      playerDetailsElement.remove();
+    });
   } catch (err) {
     console.error(`Oh no, trouble rendering player #${playerId}!`, err);
   }
@@ -152,6 +165,7 @@ const renderNewPlayerForm = async (playerList) => {
   try {
     await renderAllPlayers();
     await addNewPlayer(playerList);
+    await renderAllPlayers();
   } catch (err) {
     console.error("Uh oh, trouble rendering the new player form!", err);
   }
