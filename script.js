@@ -134,7 +134,6 @@ const renderSinglePlayerById = async (playerId) => {
   try {
     // Render single player details to the DOM
     // ...
-    const player = await fetchSinglePlayer(playerId);
 
     // Create a new HTML element to display party details
     const playerDetailsElement = document.createElement("div");
@@ -161,24 +160,48 @@ const renderSinglePlayerById = async (playerId) => {
  * It renders a form to the DOM, and when the form is submitted, it adds a new player to the database,
  * fetches all players from the database, and renders them to the DOM.
  */
-const renderNewPlayerForm = async (playerList) => {
+const renderNewPlayerForm = async () => {
   try {
-    await renderAllPlayers();
-    await addNewPlayer(playerList);
-    await renderAllPlayers();
+    newPlayerFormContainer.innerHTML = "";
+    const newPlayersForm = document.createElement("div");
+    newPlayersForm.innerHTML = `
+        <form id="myForm" action="/submit" method="post">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required><br><br>
+        
+        <label for="breed">Breed:</label>
+        <input type="text" id="breed" name="breed" required><br><br>
+        
+        <input type="submit" value="Submit">
+        </form>
+        
+      `;
+    newPlayerFormContainer.appendChild(newPlayersForm);
+
+    document.getElementById("myForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      let newName = document.getElementById("name").value;
+      let newBreed = document.getElementById("breed").value;
+      const newPlayer = {
+        name: newName,
+        breed: newBreed,
+      };
+      await addNewPlayer(newPlayer);
+      await renderAllPlayers();
+      // Reset the form fields
+      document.getElementById("myForm").reset();
+    });
+
+    // See details
   } catch (err) {
     console.error("Uh oh, trouble rendering the new player form!", err);
   }
 };
-let number = [1, 2, 3, 45, 6];
 
 const init = async () => {
-  const newPlayer = {
-    name: "Carlos",
-    breed: "Bull Dog",
-  };
+  await renderNewPlayerForm();
   await renderAllPlayers();
-  await renderNewPlayerForm(newPlayer);
 };
 
 init();
