@@ -14,6 +14,7 @@ const fetchAllPlayers = async () => {
   try {
     const response = await fetch(`${APIURL}/players`);
     const playersData = await response.json();
+    console.log(playersData);
     players = playersData.data.players;
     console.log(players);
     return players;
@@ -100,9 +101,8 @@ const renderAllPlayers = async () => {
     const playerList = await fetchAllPlayers();
 
     playerList.forEach((players) => {
-      console.log(`Player:`, players);
-
       const playerElement = document.createElement("div");
+      playerElement.classList.add("player-card"); // Add a class for styling purposes
       playerElement.innerHTML = `
         <h2>${players.name}</h2>
         <p>${players.breed}</p>
@@ -115,7 +115,7 @@ const renderAllPlayers = async () => {
       // See details
       const detailsButton = playerElement.querySelector(".details-button");
       detailsButton.addEventListener("click", async (event) => {
-        await renderSinglePlayerById(players.id);
+        await renderSinglePlayerById(players);
       });
 
       // Delete player
@@ -134,12 +134,11 @@ const renderSinglePlayerById = async (playerId) => {
   try {
     // Render single player details to the DOM
     // ...
-
-    // Create a new HTML element to display party details
     const playerDetailsElement = document.createElement("div");
     playerDetailsElement.innerHTML = `
-      <h2>${players.name}</h2>
-      <p>${players.breed}</p>
+      <h2>These are the player details</h2>
+      <p>${playerId.name}</p>
+      <p>${playerId.breed}</p>
       <button class="close-button">Close</button>
     `;
     playerContainer.appendChild(playerDetailsElement);
@@ -183,7 +182,7 @@ const renderNewPlayerForm = async () => {
 
       let newName = document.getElementById("name").value;
       let newBreed = document.getElementById("breed").value;
-      const newPlayer = {
+      let newPlayer = {
         name: newName,
         breed: newBreed,
       };
@@ -200,8 +199,8 @@ const renderNewPlayerForm = async () => {
 };
 
 const init = async () => {
-  await renderNewPlayerForm();
   await renderAllPlayers();
+  await renderNewPlayerForm();
 };
 
 init();
