@@ -134,19 +134,20 @@ const renderSinglePlayerById = async (playerId) => {
   try {
     // Render single player details to the DOM
     // ...
-    const playerDetailsElement = document.createElement("div");
+    const playerDetailsElement = document.getElementById("player-details");
+    playerDetailsElement.style.display = "block";
+    console.log(playerDetailsElement);
     playerDetailsElement.innerHTML = `
       <h2>These are the player details</h2>
       <p>${playerId.name}</p>
       <p>${playerId.breed}</p>
       <button class="close-button">Close</button>
     `;
-    playerContainer.appendChild(playerDetailsElement);
 
     // Add event listener to the close button
     const closeButton = playerDetailsElement.querySelector(".close-button");
     closeButton.addEventListener("click", () => {
-      playerDetailsElement.remove();
+      playerDetailsElement.style.display = "none";
     });
   } catch (err) {
     console.error(`Oh no, trouble rendering player #${playerId}!`, err);
